@@ -1,0 +1,51 @@
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+
+# 讀取訓練數據
+train_file = r"C:\Users\I5\OneDrive\桌面\kaggle\house-prices-main\data\train_processed.csv"
+train_data = pd.read_csv(train_file)
+
+# 特徵列和目標列
+selected_features = [
+    'GarageType_target_enc', 
+    '1stFlrSF', 
+    'Foundation_target_enc', 
+    'Neighborhood_target_enc', 
+    'MSSubClass_target_enc', 
+    'GrLivArea', 
+    'TotalBsmtSF', 
+    'GarageArea'
+]
+X = train_data[selected_features]  
+y = train_data['SalePrice']        
+
+# 拆分訓練集和驗證集
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.179, random_state=42)# 0.8403100421632957
+
+# 訓練模型
+model = RandomForestRegressor(random_state=42)
+model.fit(X_train, y_train)
+
+# 驗證模型
+print("驗證集分數：", model.score(X_val, y_val))
+
+# 預測測試集的 SalePrice
+test_file = r"C:\Users\I5\OneDrive\桌面\kaggle\house-prices-main\data\test_processed.csv"
+test_data = pd.read_csv(test_file)
+
+# 提取測試集特徵
+X_test = test_data[selected_features]
+
+# 預測 SalePrice
+test_predictions = model.predict(X_test)
+
+# 保存預測結果
+submission = pd.DataFrame({
+    "Id": test_data["Id"],         
+    "SalePrice": test_predictions  
+})
+submission.to_csv("submission.csv", index=False)
+
+print("預測完成！結果已保存為 submission.csv")#檔案在C:\Users\I5\submission.csv
